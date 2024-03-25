@@ -1,0 +1,39 @@
+import keyboard
+import win32api
+
+ignored_keys = {'ctrl', 'alt', 'cmd', 'tab', 'backspace'}
+pressed_keys = []
+
+def get_caps_lock_state():
+    # Returns True if Caps Lock is on, False otherwise
+    return win32api.GetKeyState(0x14) & 1
+
+def capitalize_key(key, caps_lock_active):
+    if key.isalpha() and (keyboard.is_pressed('shift') ^ caps_lock_active):
+        return key.upper()
+    return key
+
+def on_key_pressed(event):
+    key = event.name.lower()
+    caps_lock_active = get_caps_lock_state()
+
+    if key == 'space':
+        key = ' '
+    if key == 'backspace':
+        if pressed_keys:
+            pressed_keys.pop()
+            print('Pressed Keys:', ''.join(pressed_keys))
+    elif key == 'enter':
+        pressed_keys.append('\n')  # Add newline character for Enter key
+        print('Pressed Keys:', ''.join(pressed_keys))
+    elif key != 'caps lock' and key not in ignored_keys and key != 'shift':
+        if event.event_type == keyboard.KEY_DOWN:  # Check if the key is pressed down
+            key = capitalize_key(key, caps_lock_active)
+            pressed_keys.append(key)
+            print('Pressed Keys:', ''.join(pressed_keys))
+
+# Hook for key press event
+keyboard.on_press(on_key_pressed)
+
+# Block the program from exiting
+keyboard.wait('esc')
