@@ -1,0 +1,5 @@
+#need pywin32
+#need keyboard
+
+#pip install keyboard
+#pip install pywin32
